@@ -47,7 +47,7 @@ def sample_target(im, target_bb, search_area_factor, output_sz=None, mask=None):
     # Pad
     im_crop_padded = cv.copyMakeBorder(im_crop, y1_pad, y2_pad, x1_pad, x2_pad, cv.BORDER_REPLICATE)
     if mask is not None:
-        mask_crop_padded = F.pad(mask_crop, pad=(x1_pad, x2_pad, y1_pad, y2_pad), mode='constant', value=0)
+        mask_crop_padded = F.pad(torch.from_numpy(mask_crop), pad=(x1_pad, x2_pad, y1_pad, y2_pad), mode='constant', value=0)
 
     if output_sz is not None:
         resize_factor = output_sz / crop_sz

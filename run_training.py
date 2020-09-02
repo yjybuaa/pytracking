@@ -41,13 +41,13 @@ def run_training(train_module, train_name, cudnn_benchmark=True):
 
 def main():
     parser = argparse.ArgumentParser(description='Run a train scripts in train_settings.')
-    parser.add_argument('train_module', type=str, help='Name of module in the "train_settings/" folder.')
-    parser.add_argument('train_name', type=str, help='Name of the train settings file.')
+    # parser.add_argument('train_module', type=str, help='Name of module in the "train_settings/" folder.')
+    # parser.add_argument('train_name', type=str, help='Name of the train settings file.')
     parser.add_argument('--cudnn_benchmark', type=bool, default=True, help='Set cudnn benchmark on (1) or off (0) (default is on).')
 
     args = parser.parse_args()
 
-    run_training(args.train_module, args.train_name, args.cudnn_benchmark)
+    run_training('depth', 'depth', args.cudnn_benchmark)
 
 
 if __name__ == '__main__':

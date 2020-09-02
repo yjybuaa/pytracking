@@ -14,7 +14,7 @@ class AtomActor(BaseActor):
             states  -  dict containing detailed losses
         """
         # Run network to obtain IoU prediction for each proposal in 'test_proposals'
-        iou_pred = self.net(data['train_images'], data['test_images'], data['train_anno'], data['test_proposals'])
+        iou_pred = self.net(data['train_images'], data['train_depths'], data['test_images'], data['test_depths'], data['train_anno'], data['test_proposals'])
 
         iou_pred = iou_pred.view(-1, iou_pred.shape[2])
         iou_gt = data['proposal_iou'].view(-1, data['proposal_iou'].shape[2])
