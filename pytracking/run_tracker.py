@@ -39,10 +39,10 @@ def run_tracker(tracker_name, tracker_param, run_id=None, dataset_name='otb', se
 
 def main():
     parser = argparse.ArgumentParser(description='Run tracker on sequence or dataset.')
-    parser.add_argument('tracker_name', type=str, help='Name of tracking method.')
-    parser.add_argument('tracker_param', type=str, help='Name of parameter file.')
+    parser.add_argument('--tracker_name', type=str, default="atom", help='Name of tracking method.')
+    parser.add_argument('--tracker_param', type=str, default="default", help='Name of parameter file.')
     parser.add_argument('--runid', type=int, default=None, help='The run id.')
-    parser.add_argument('--dataset_name', type=str, default='otb', help='Name of dataset (otb, nfs, uav, tpl, vot, tn, gott, gotv, lasot).')
+    parser.add_argument('--dataset_name', type=str, default='cdtb', help='Name of dataset (otb, nfs, uav, tpl, vot, tn, gott, gotv, lasot).')
     parser.add_argument('--sequence', type=str, default=None, help='Sequence number or name.')
     parser.add_argument('--debug', type=int, default=0, help='Debug level.')
     parser.add_argument('--threads', type=int, default=0, help='Number of threads.')
