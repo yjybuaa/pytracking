@@ -2,6 +2,7 @@ from pytracking.utils import TrackerParams, FeatureParams, Choice
 from pytracking.features.extractor import MultiResolutionExtractor
 from pytracking.features import deep
 import torch
+from pytracking.evaluation.environment import EnvSettings
 
 def parameters():
     params = TrackerParams()
@@ -96,9 +97,11 @@ def parameters():
     params.box_refinement_step_length = 1   # Gradient step length in the bounding box refinement
     params.box_refinement_step_decay = 1    # Multiplicative step length decay (1 means no decay)
 
+    envs = EnvSettings()
     # Setup the feature extractor (which includes the IoUNet)
     deep_fparams = FeatureParams(feature_params=[deep_params])
-    deep_feat = deep.ATOMResNet18(net_path='DepthATOMnet_ep0001.pth', output_layers=['layer3'], fparams=deep_fparams, normalize_power=2)
+    deep_feat = deep.ATOMResNet18(net_path=envs.checkpoints_path, output_layers=['layer3'], fparams=deep_fparams, normalize_power=2)
+    # deep_feat = deep.DepthResNet50(net_path=envs.checkpoints_path, output_layers=['layer3'], fparams=deep_fparams, normalize_power=2)
     params.features = MultiResolutionExtractor([deep_feat])
 
     return params

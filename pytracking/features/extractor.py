@@ -140,4 +140,4 @@ class MultiResolutionExtractor(ExtractorBase):
         # Compute features
         feature_map = TensorList([f.get_feature(im_patches) for f in self.features]).unroll()
 
-        return feature_map 
+        return feature_map
