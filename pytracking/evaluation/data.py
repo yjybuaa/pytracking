@@ -17,13 +17,13 @@ class BaseDataset:
         """Overload this in your dataset. Should return the list of sequences in the dataset."""
         raise NotImplementedError
 
-
 class Sequence:
     """Class for the sequence in an evaluation."""
-    def __init__(self, name, frames, dataset, ground_truth_rect, ground_truth_seg=None, init_data=None,
+    def __init__(self, name, frames, dataset, ground_truth_rect, depths=None, ground_truth_seg=None, init_data=None,
                  object_class=None, target_visible=None, object_ids=None, multiobj_mode=False):
         self.name = name
         self.frames = frames
+        self.depths = depths
         self.dataset = dataset
         self.ground_truth_rect = ground_truth_rect
         self.ground_truth_seg = ground_truth_seg
@@ -39,6 +39,7 @@ class Sequence:
         start_frame = min(list(self.init_data.keys()))
         if start_frame > 0:
             self.frames = self.frames[start_frame:]
+            self.depths = self.depths[start_frame:]
             if self.ground_truth_rect is not None:
                 if isinstance(self.ground_truth_rect, (dict, OrderedDict)):
                     for obj_id, gt in self.ground_truth_rect.items():
@@ -48,6 +49,7 @@ class Sequence:
             if self.ground_truth_seg is not None:
                 self.ground_truth_seg = self.ground_truth_seg[start_frame:]
                 assert len(self.frames) == len(self.ground_truth_seg)
+                assert len(self.depths) == len(self.ground_truth_seg)
 
             if self.target_visible is not None:
                 self.target_visible = self.target_visible[start_frame:]
@@ -82,6 +84,7 @@ class Sequence:
                     if isinstance(self.ground_truth_rect, (dict, OrderedDict)):
                         init_data[0]['bbox'] = list(self.ground_truth_rect[self.object_ids[0]][0, :])
                     else:
+                        print(list(self.ground_truth_rect[0,:]))
                         init_data[0]['bbox'] = list(self.ground_truth_rect[0,:])
 
             if self.ground_truth_seg is not None:
@@ -144,6 +147,13 @@ class Sequence:
 
     def __repr__(self):
         return "{self.__class__.__name__} {self.name}, length={len} frames".format(self=self, len=len(self.frames))
+
+
+class SequenceDepth(Sequence):
+    def __init__(self, name, frames, depths, dataset, ground_truth_rect, ground_truth_seg=None, init_data=None,
+                 object_class=None, target_visible=None, object_ids=None, multiobj_mode=False):
+        super().__init__(name=name, frames=frames, dataset=dataset, depths=depths, ground_truth_rect=ground_truth_rect, ground_truth_seg=ground_truth_seg, init_data=init_data,
+                 object_class=object_class, target_visible=target_visible, object_ids=object_ids, multiobj_mode=multiobj_mode)
 
 
 

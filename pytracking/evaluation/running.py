@@ -4,7 +4,7 @@ import os
 import sys
 from itertools import product
 from collections import OrderedDict
-from pytracking.evaluation import Sequence, Tracker
+from pytracking.evaluation import Sequence, Tracker, SequenceDepth
 from ltr.data.image_loader import imwrite_indexed
 
 
@@ -73,7 +73,7 @@ def _save_tracker_output(seq: Sequence, tracker: Tracker, output: dict):
                 imwrite_indexed(os.path.join(segmentation_path, '{}.png'.format(frame_name)), frame_seg)
 
 
-def run_sequence(seq: Sequence, tracker: Tracker, debug=False, visdom_info=None):
+def run_sequence(seq: SequenceDepth, tracker: Tracker, debug=False, visdom_info=None):
     """Runs a tracker on a sequence."""
 
     def _results_exist():

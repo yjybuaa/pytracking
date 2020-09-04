@@ -1,5 +1,5 @@
 import numpy as np
-from pytracking.evaluation.data import Sequence, BaseDataset, SequenceList
+from pytracking.evaluation.data import Sequence, BaseDataset, SequenceList, SequenceDepth
 from pytracking.utils.load_text import load_text
 import os
 
@@ -43,7 +43,7 @@ class CDTBDataset(BaseDataset):
         frames_list = [os.path.join(frames_path, frame) for frame in frame_list]
         depths_list = [os.path.join(depths_path, depth) for depth in depth_list]
 
-        return Sequence(sequence_name, frames_list, 'cdtb', ground_truth_rect.reshape(-1, 4))
+        return SequenceDepth(sequence_name, frames_list, depths_list, 'cdtb', ground_truth_rect.reshape(-1, 4))
 
     def __len__(self):
         return len(self.sequence_list)

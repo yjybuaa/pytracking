@@ -177,12 +177,13 @@ class Tracker:
 
         # Initialize
         image = self._read_image(seq.frames[0])
+        depth = self._read_depth(seq.depths[0])
 
         if tracker.params.visualization and self.visdom is None:
-            self.visualize(image, init_info.get('init_bbox'))
+            self.visualize(image, depth, init_info.get('init_bbox'))
 
         start_time = time.time()
-        out = tracker.initialize(image, init_info)
+        out = tracker.initialize(image, depth, init_info)
         if out is None:
             out = {}
 
@@ -705,6 +706,10 @@ class Tracker:
     def _read_image(self, image_file: str):
         im = cv.imread(image_file)
         return cv.cvtColor(im, cv.COLOR_BGR2RGB)
+
+    def _read_depth(self, depth_file: str):
+        depth = cv.imread(depth_file, -1)
+        return depth
 
 
 
