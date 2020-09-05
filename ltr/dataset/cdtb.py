@@ -27,7 +27,9 @@ class CDTB(BaseVideoDataset):
                         options can be used at the same time.
             data_fraction - Fraction of dataset to be used. The complete dataset is used by default
         """
-        root = '/home/jinyu/vot-toolkit-python/vot/workspace-clgd/sequences' if root is None else root
+        # root = '/home/yan/Data2/CDTB/sequences' if root is None else root
+        env = env_settings()
+        root = env.cdtb_path if root is None else root
         super().__init__('CDTB', root, image_loader)
 
         # all folders inside the root
@@ -149,7 +151,7 @@ class CDTB(BaseVideoDataset):
 
     def _get_frame_path(self, seq_path, frame_id):
         return os.path.join(seq_path, 'color', '{:08}.jpg'.format(frame_id+1))    # frames start from 1
-    
+
     def _get_depth_path(self, seq_path, frame_id):
         return os.path.join(seq_path, 'depth', '{:08}.png'.format(frame_id+1))    # frames start from 1
 
@@ -160,7 +162,7 @@ class CDTB(BaseVideoDataset):
     def _normalize_depth(self, depth_img):
         max_value = np.max(depth_img)
         norm = np.float32(depth_img / float(max_value))
-        
+
         return norm
 
     def _get_depth(self, seq_path, frame_id):
@@ -189,4 +191,3 @@ class CDTB(BaseVideoDataset):
             anno_frames[key] = [value[f_id, ...].clone() for f_id in frame_ids]
 
         return frame_list, depth_list, anno_frames
-

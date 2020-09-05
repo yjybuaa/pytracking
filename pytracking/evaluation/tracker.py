@@ -45,7 +45,6 @@ class Tracker:
 
     def __init__(self, name: str, parameter_name: str, run_id: int = None, display_name: str = None):
         assert run_id is None or isinstance(run_id, int)
-
         self.name = name
         self.parameter_name = parameter_name
         self.run_id = run_id
@@ -146,6 +145,7 @@ class Tracker:
             raise ValueError('Unknown multi object mode {}'.format(multiobj_mode))
 
         output = self._track_sequence(tracker, seq, init_info)
+
         return output
 
     def _track_sequence(self, tracker, seq, init_info):
@@ -714,6 +714,3 @@ class Tracker:
         depth = np.uint8(depth)
         depth = np.expand_dims(depth, axis=2)
         return depth
-
-
-
