@@ -52,7 +52,7 @@ def sample_patch_multiscale(im, pos, scales, image_sz, mode: str='replicate', ma
     return  im_patches, patch_coords
 
 
-def sample_patch(im: torch.Tensor, pos: torch.Tensor, sample_sz: torch.Tensor, output_sz: torch.Tensor = None,
+def sample_patch(im: torch.Tensor, dp: torch.Tensor, pos: torch.Tensor, sample_sz: torch.Tensor, output_sz: torch.Tensor = None,
                  mode: str = 'replicate', max_scale_change=None, is_mask=False):
     """Sample an image patch.
 
@@ -99,8 +99,10 @@ def sample_patch(im: torch.Tensor, pos: torch.Tensor, sample_sz: torch.Tensor, o
         os = posl % df              # offset
         posl = (posl - os) / df     # new position
         im2 = im[..., os[0].item()::df, os[1].item()::df]   # downsample
+        dp2 = dp[..., os[0].item()::df, os[1].item()::df]
     else:
         im2 = im
+        dp2 = dp
 
     # compute size to crop
     szl = torch.max(sz.round(), torch.Tensor([2])).long()
@@ -127,8 +129,11 @@ def sample_patch(im: torch.Tensor, pos: torch.Tensor, sample_sz: torch.Tensor, o
     # Get image patch
     if not is_mask:
         im_patch = F.pad(im2, (-tl[1].item(), br[1].item() - im2.shape[3], -tl[0].item(), br[0].item() - im2.shape[2]), pad_mode)
+        dp_patch = F.pad(dp2, (-tl[1].item(), br[1].item() - dp2.shape[3], -tl[0].item(), br[0].item() - dp2.shape[2]), pad_mode)
     else:
         im_patch = F.pad(im2, (-tl[1].item(), br[1].item() - im2.shape[3], -tl[0].item(), br[0].item() - im2.shape[2]))
+        dp_patch = F.pad(dp2, (-tl[1].item(), br[1].item() - dp2.shape[3], -tl[0].item(), br[0].item() - dp2.shape[2]))
+
 
     # Get image coordinates
     patch_coord = df * torch.cat((tl, br)).view(1,4)
@@ -139,7 +144,9 @@ def sample_patch(im: torch.Tensor, pos: torch.Tensor, sample_sz: torch.Tensor, o
     # Resample
     if not is_mask:
         im_patch = F.interpolate(im_patch, output_sz.long().tolist(), mode='bilinear')
+        dp_patch = F.interpolate(dp_patch, output_sz.long().tolist(), mode='bilinear')
     else:
         im_patch = F.interpolate(im_patch, output_sz.long().tolist(), mode='nearest')
+        dp_patch = F.interpolate(dp_patch, output_sz.long().tolist(), mode='nearest')
 
-    return im_patch, patch_coord
+    return im_patch, dp_patch, patch_coord

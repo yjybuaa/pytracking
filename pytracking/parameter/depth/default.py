@@ -55,11 +55,13 @@ def parameters():
     params.score_upsample_factor = 1     # How much Fourier upsampling to use
 
     # Init data augmentation parameters
-    params.augmentation = {'fliplr': True,
-                           'rotate': [5, -5, 10, -10, 20, -20, 30, -30, 45,-45, -60, 60],
-                           'blur': [(2, 0.2), (0.2, 2), (3,1), (1, 3), (2, 2)],
-                           'relativeshift': [(0.6, 0.6), (-0.6, 0.6), (0.6, -0.6), (-0.6,-0.6)],
-                           'dropout': (7, 0.2)}
+    params.augmentation = {
+        'fliplr': True,
+        # 'rotate': [5, -5, 10, -10, 20, -20, 30, -30, 45,-45, -60, 60],
+        'blur': [(2, 0.2), (0.2, 2), (3,1), (1, 3), (2, 2)],
+        'relativeshift': [(0.6, 0.6), (-0.6, 0.6), (0.6, -0.6), (-0.6,-0.6)],
+        'dropout': (7, 0.2)
+    }
 
     params.augmentation_expansion_factor = 2    # How much to expand sample when doing augmentation
     params.random_shift_factor = 1/3            # How much random shift to do on each augmented sample
@@ -98,7 +100,7 @@ def parameters():
 
     # Setup the feature extractor (which includes the IoUNet)
     deep_fparams = FeatureParams(feature_params=[deep_params])
-    deep_feat = deep.ATOMResNet18(net_path='DepthATOMnet_ep0001.pth', output_layers=['layer3'], fparams=deep_fparams, normalize_power=2)
+    deep_feat = deep.DepthResNet50(net_path='depth/depth/', output_layers=['layer3'], fparams=deep_fparams, normalize_power=2)
     params.features = MultiResolutionExtractor([deep_feat])
 
     return params

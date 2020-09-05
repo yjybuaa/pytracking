@@ -7,6 +7,8 @@ import os
 from pytracking.utils.loading import load_network
 from ltr.models.backbone.resnet18_vggm import resnet18_vggmconv1
 from ltr.models.backbone.mobilenetv3 import mobilenet3
+from collections import OrderedDict
+
 
 normalize = torchvision.transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                              std=[0.229, 0.224, 0.225])
@@ -264,16 +266,25 @@ class DepthResNet50(MultiFeatureBase):
     def stride(self):
         return TensorList([s * self.layer_stride[l] for l, s in zip(self.output_layers, self.pool_stride)])
 
-    def extract(self, im: torch.Tensor):
+    def extract(self, im: torch.Tensor, dp: torch.Tensor):
         im = im / 255
         im -= self.mean
         im /= self.std
 
+        dp = dp / 255
+
         if self.use_gpu:
             im = im.cuda()
+            dp = dp.cuda()
+        
+        output_features = OrderedDict()
 
         with torch.no_grad():
-            output_features = self.net.extract_features(im, self.feature_layers)
+            output_image_features = self.net.extract_features(im, self.feature_layers)
+            output_depth_features = self.net.extract_depth_features(dp, self.feature_layers)
+
+        for key, value in output_image_features.items():
+            output_features[key] = torch.cat((value, output_depth_features[key]), 1)
 
         # Store the raw resnet features which are input to iounet
         self.iounet_backbone_features = TensorList(

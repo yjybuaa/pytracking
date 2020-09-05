@@ -79,7 +79,7 @@ class MultiFeatureBase(FeatureBase):
         if isinstance(im_sz, torch.Tensor):
             return TensorList([im_sz // s if sz is None else torch.Tensor([sz[0], sz[1]]) for sz, s in zip(self.output_size, self.stride())])
 
-    def get_feature(self, im: torch.Tensor):
+    def get_feature(self, im: torch.Tensor, dp: torch.Tensor):
         """Get the feature. Generally, call this function.
         args:
             im: image patch as a torch.Tensor.
@@ -90,7 +90,7 @@ class MultiFeatureBase(FeatureBase):
         if is_color and not self.use_for_color or not is_color and not self.use_for_gray:
             return torch.Tensor([])
 
-        feat_list = self.extract(im)
+        feat_list = self.extract(im, dp)
 
         output_sz = [None]*len(feat_list) if self.output_size is None else self.output_size
 

@@ -195,7 +195,7 @@ class Tracker:
 
         _store_outputs(out, init_default)
 
-        for frame_num, frame_path in enumerate(seq.frames[1:], start=1):
+        for frame_num, (frame_path, depth_path) in enumerate(zip(seq.frames[1:], seq.depths[1:]), start=1):
             while True:
                 if not self.pause_mode:
                     break
@@ -206,13 +206,14 @@ class Tracker:
                     time.sleep(0.1)
 
             image = self._read_image(frame_path)
+            depth = self._read_depth(depth_path)
 
             start_time = time.time()
 
             info = seq.frame_info(frame_num)
             info['previous_output'] = prev_output
 
-            out = tracker.track(image, info)
+            out = tracker.track(image, depth, info)
             prev_output = OrderedDict(out)
             _store_outputs(out, {'time': time.time() - start_time})
 
@@ -709,6 +710,9 @@ class Tracker:
 
     def _read_depth(self, depth_file: str):
         depth = cv.imread(depth_file, -1)
+        cv.normalize(depth, depth, 0, 255, cv.NORM_MINMAX)
+        depth = np.uint8(depth)
+        depth = np.expand_dims(depth, axis=2)
         return depth
 
 

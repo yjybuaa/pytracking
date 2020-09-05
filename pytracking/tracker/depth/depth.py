@@ -102,13 +102,17 @@ class Depth(BaseTracker):
         im = numpy_to_torch(image)
         self.im = im    # For debugging only
 
+        # Convert depth
+        dp = numpy_to_torch(depth)
+        self.dp = dp
+
         # Setup scale bounds
         self.image_sz = torch.Tensor([im.shape[2], im.shape[3]])
         self.min_scale_factor = torch.max(10 / self.base_target_sz)
         self.max_scale_factor = torch.min(self.image_sz / self.base_target_sz)
 
         # Extract and transform sample
-        x = self.generate_init_samples(im)
+        x = self.generate_init_samples(im, dp)
 
         # Initialize iounet
         if self.use_iou_net:
@@ -222,7 +226,7 @@ class Depth(BaseTracker):
             del self.joint_problem, self.joint_optimizer
 
 
-    def track(self, image, info: dict = None) -> dict:
+    def track(self, image, depth, info: dict = None) -> dict:
         self.debug_info = {}
 
         self.frame_num += 1
@@ -232,12 +236,16 @@ class Depth(BaseTracker):
         im = numpy_to_torch(image)
         self.im = im    # For debugging only
 
+        #convert depth
+        dp = numpy_to_torch(depth)
+        self.dp = dp    # For debugging only
+
         # ------- LOCALIZATION ------- #
 
         # Get sample
         sample_pos = self.pos.round()
         sample_scales = self.target_scale * self.params.scale_factors
-        test_x = self.extract_processed_sample(im, self.pos, sample_scales, self.img_sample_sz)
+        test_x = self.extract_processed_sample(im, dp, self.pos, sample_scales, self.img_sample_sz)
 
         # Compute scores
         scores_raw = self.apply_filter(test_x)
@@ -406,8 +414,8 @@ class Depth(BaseTracker):
         return translation_vec1, scale_ind, scores, None
 
 
-    def extract_sample(self, im: torch.Tensor, pos: torch.Tensor, scales, sz: torch.Tensor):
-        return self.params.features.extract(im, pos, scales, sz)[0]
+    def extract_sample(self, im: torch.Tensor, dp: torch.Tensor, pos: torch.Tensor, scales, sz: torch.Tensor):
+        return self.params.features.extract(im, dp, pos, scales, sz)[0]
 
     def get_iou_features(self):
         return self.params.features.get_unique_attribute('iounet_features')
@@ -415,8 +423,8 @@ class Depth(BaseTracker):
     def get_iou_backbone_features(self):
         return self.params.features.get_unique_attribute('iounet_backbone_features')
 
-    def extract_processed_sample(self, im: torch.Tensor, pos: torch.Tensor, scales, sz: torch.Tensor) -> (TensorList, TensorList):
-        x = self.extract_sample(im, pos, scales, sz)
+    def extract_processed_sample(self, im: torch.Tensor, dp: torch.Tensor, pos: torch.Tensor, scales, sz: torch.Tensor) -> (TensorList, TensorList):
+        x = self.extract_sample(im, dp, pos, scales, sz)
         return self.preprocess_sample(self.project_sample(x))
 
     def preprocess_sample(self, x: TensorList) -> (TensorList, TensorList):
@@ -470,7 +478,7 @@ class Depth(BaseTracker):
             raise ValueError('Unknown activation')
 
 
-    def generate_init_samples(self, im: torch.Tensor) -> TensorList:
+    def generate_init_samples(self, im: torch.Tensor, dp: torch.Tensor) -> TensorList:
         """Generate augmented initial samples."""
 
         # Compute augmentation size
@@ -506,7 +514,7 @@ class Depth(BaseTracker):
             self.transforms.extend([augmentation.Rotate(angle, aug_output_sz, get_rand_shift()) for angle in self.params.augmentation['rotate']])
 
         # Generate initial samples
-        init_samples = self.params.features.extract_transformed(im, self.pos, self.target_scale, aug_expansion_sz, self.transforms)
+        init_samples = self.params.features.extract_transformed(im, dp, self.pos, self.target_scale, aug_expansion_sz, self.transforms)
 
         # Remove augmented samples for those that shall not have
         for i, use_aug in enumerate(self.fparams.attribute('use_augmentation')):

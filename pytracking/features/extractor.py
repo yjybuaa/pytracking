@@ -94,7 +94,7 @@ class MultiResolutionExtractor(ExtractorBase):
     def set_is_color(self, is_color: bool):
         self.is_color = is_color
 
-    def extract(self, im, pos, scales, image_sz, return_patches=False):
+    def extract(self, im, dp, pos, scales, image_sz, return_patches=False):
         """Extract features.
         args:
             im: Image.
@@ -106,25 +106,27 @@ class MultiResolutionExtractor(ExtractorBase):
             scales = [scales]
 
         # Get image patches
-        patch_iter, coord_iter = zip(*(sample_patch(im, pos, s*image_sz, image_sz, mode=self.patch_mode,
+        patch_iter, depth_iter, coord_iter = zip(*(sample_patch(im, dp, pos, s*image_sz, image_sz, mode=self.patch_mode,
                                                     max_scale_change=self.max_scale_change) for s in scales))
         im_patches = torch.cat(list(patch_iter))
         patch_coords = torch.cat(list(coord_iter))
+        depth_patches = torch.cat(list(depth_iter))
 
         # im_patches = torch.cat([sample_patch(im, pos, s*image_sz, image_sz) for s in scales])
 
         # Compute features
-        feature_map = TensorList([f.get_feature(im_patches) for f in self.features]).unroll()
+        feature_map = TensorList([f.get_feature(im_patches, depth_patches) for f in self.features]).unroll()
 
         if return_patches:
             return feature_map, patch_coords, im_patches
         else:
             return feature_map, patch_coords
 
-    def extract_transformed(self, im, pos, scale, image_sz, transforms):
+    def extract_transformed(self, im, dp, pos, scale, image_sz, transforms):
         """Extract features from a set of transformed image samples.
         args:
             im: Image.
+            dp: Depth
             pos: Center position for extraction.
             scale: Image scale to extract features from.
             image_sz: Size to resize the image samples to before extraction.
@@ -132,12 +134,13 @@ class MultiResolutionExtractor(ExtractorBase):
         """
 
         # Get image patche
-        im_patch, _ = sample_patch(im, pos, scale*image_sz, image_sz)
+        im_patch, dp_patch, _ = sample_patch(im, dp, pos, scale*image_sz, image_sz)
 
         # Apply transforms
         im_patches = torch.cat([T(im_patch) for T in transforms])
+        dp_patches = torch.cat([T(dp_patch) for T in transforms])
 
         # Compute features
-        feature_map = TensorList([f.get_feature(im_patches) for f in self.features]).unroll()
+        feature_map = TensorList([f.get_feature(im_patches, dp_patches) for f in self.features]).unroll()
 
         return feature_map 
