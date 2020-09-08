@@ -139,7 +139,7 @@ def sample_patch(im: torch.Tensor, dp: torch.Tensor, pos: torch.Tensor, sample_s
     patch_coord = df * torch.cat((tl, br)).view(1,4)
 
     if output_sz is None or (im_patch.shape[-2] == output_sz[0] and im_patch.shape[-1] == output_sz[1]):
-        return im_patch.clone(), patch_coord
+        return im_patch.clone(), dp_patch.clone(), patch_coord
 
     # Resample
     if not is_mask:

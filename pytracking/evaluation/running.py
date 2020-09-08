@@ -6,6 +6,7 @@ from itertools import product
 from collections import OrderedDict
 from pytracking.evaluation import Sequence, Tracker, SequenceDepth
 from ltr.data.image_loader import imwrite_indexed
+import traceback
 
 
 def _save_tracker_output(seq: Sequence, tracker: Tracker, output: dict):
@@ -100,6 +101,7 @@ def run_sequence(seq: SequenceDepth, tracker: Tracker, debug=False, visdom_info=
             output = tracker.run_sequence(seq, debug=debug, visdom_info=visdom_info)
         except Exception as e:
             print(e)
+            traceback.print_exc()
             return
 
     sys.stdout.flush()
