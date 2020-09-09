@@ -252,10 +252,14 @@ class DepthProcessing(BaseProcessing):
             jittered_anno = [self._get_jittered_box(a, s) for a in data[s + '_anno']]
 
             # Crop image region centered at jittered_anno box
-            crops, boxes, depth_crops = prutils.jittered_center_crop(data[s + '_images'], jittered_anno, data[s + '_anno'],
-                                                           self.search_area_factor, self.output_sz, masks=data[s + '_depths'])
+            #crops, boxes, depth_crops = prutils.jittered_center_crop(data[s + '_images'], jittered_anno, data[s + '_anno'],
+                                                           #self.search_area_factor, self.output_sz, masks=data[s + '_depths'])
+            crops, boxes = prutils.jittered_center_crop(data[s + '_images'], jittered_anno, data[s + '_anno'],
+                                                           self.search_area_factor, self.output_sz)
+            crops_depth, boxes_depth = prutils.jittered_center_crop(data[s + '_depths'], jittered_anno, data[s + '_anno'],
+                                                           self.search_area_factor, self.output_sz)
 
-            data[s + '_depths'] = depth_crops
+            data[s + '_depths'] = crops_depth
 
             # Apply transforms
             data[s + '_images'], data[s + '_anno'] = self.transform[s](image=crops, bbox=boxes, joint=False)

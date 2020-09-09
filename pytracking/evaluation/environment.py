@@ -10,7 +10,7 @@ class EnvSettings:
         self.segmentation_path = '{}/segmentation_results/'.format(pytracking_path)
         self.network_path = '{}/networks/'.format(pytracking_path)
         self.result_plot_path = '{}/result_plots/'.format(pytracking_path)
-        self.cdtb_path = '/home/yan/Data2/CDTB/sequences/'
+        self.cdtb_path = '/home/jinyu/vot-toolkit-python/vot/workspace-clgd/sequences/'
         self.checkpoints_path = '/home/yan/Desktop/checkpoints/ltr/depth/depth/DepthATOMnet_ep0050.pth.tar'
         self.otb_path = ''
         self.nfs_path = ''

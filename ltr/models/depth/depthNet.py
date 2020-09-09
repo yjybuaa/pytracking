@@ -11,7 +11,7 @@ class depthNet(nn.Module):
         self.inplanes = inplanes
         super(depthNet, self).__init__()
         self.output_layers = output_layers
-        self.conv1 = nn.Conv2d(1, inplanes, kernel_size=7, stride=2, padding=3,
+        self.conv1 = nn.Conv2d(3, inplanes, kernel_size=7, stride=2, padding=3,
                                bias=False)
         self.bn1 = nn.BatchNorm2d(inplanes)
         self.relu = nn.ReLU(inplace=True)

@@ -167,8 +167,11 @@ class CDTB(BaseVideoDataset):
 
     def _get_depth(self, seq_path, frame_id):
         path = self._get_depth_path(seq_path, frame_id)
-        depth_img = cv2.imread(path, -1)
-        depth_norm = self._normalize_depth(depth_img)
+        #depth_img = cv2.imread(path, -1)
+        #depth_norm = self._normalize_depth(depth_img)
+        depth_frame = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
+        depth_frame = cv2.normalize(depth_frame, depth_frame, 0, 255, cv2.NORM_MINMAX)
+        depth_norm = cv2.applyColorMap(np.uint8(depth_frame), cv2.COLORMAP_JET)
         return depth_norm
 
 

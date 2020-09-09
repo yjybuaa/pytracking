@@ -122,7 +122,7 @@ def jittered_center_crop(frames, box_extract, box_gt, search_area_factor, output
     box_crop = [transform_image_to_crop(a_gt, a_ex, rf, crop_sz)
                 for a_gt, a_ex, rf in zip(box_gt, box_extract, resize_factors)]
 
-    return frames_crop, box_crop, masks_crop
+    return frames_crop, box_crop
 
 
 def sample_target_adaptive(im, target_bb, search_area_factor, output_sz, mode: str = 'replicate',
