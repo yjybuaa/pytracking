@@ -75,24 +75,12 @@ class DepthAtomIoUNet(nn.Module):
         assert bb1.dim() == 3
         assert proposals2.dim() == 4
 
-        # print(proposals2.shape) # [2, 1, 16, 4]
         num_images = proposals2.shape[0]
         num_sequences = proposals2.shape[1]
 
-        # print('Song check feat1 shape and feat2')
-        # for f in feat1:
-        #     print(f.dim()) # [2, 1024, 36, 36], [2, 1024, 18, 18]
-        #     print(f.shape)
-        # for f in feat2:
-        #     print(f.dim()) # [2, 1024, 36, 36], [2, 1024, 18, 18]
-        #     print(f.shape)
         # Extract first train sample
         feat1 = [f[0,...] if f.dim()==5 else f.reshape(-1, num_sequences, *f.shape[-3:])[0,...] for f in feat1]
         bb1 = bb1[0,...]
-
-        # print('Song checkt.......')
-        # for f in feat1:
-        #     print(f.shape) [1, 1024, 36, 36], [1, 1024, 18, 18]
 
         # Get modulation vector
         modulation = self.get_modulation(feat1, bb1) # Error
