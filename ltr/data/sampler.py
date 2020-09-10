@@ -189,7 +189,7 @@ class ATOMSampler(TrackingSampler):
                          frame_sample_mode=frame_sample_mode)
 
 class DepthSampler(torch.utils.data.Dataset):
-        
+
     def __init__(self, datasets, p_datasets, samples_per_epoch, max_gap,
                  num_test_frames=1, num_train_frames=1, processing=no_processing, frame_sample_mode='causal'):
         """
@@ -205,7 +205,6 @@ class DepthSampler(torch.utils.data.Dataset):
                                 otherwise randomly within the interval.
         """
         self.datasets = datasets
-
         # If p not provided, sample uniformly from all videos
         if p_datasets is None:
             p_datasets = [len(d) for d in self.datasets]
@@ -259,7 +258,6 @@ class DepthSampler(torch.utils.data.Dataset):
         returns:
             TensorDict - dict containing all the data blocks
         """
-
         # Select a dataset
         dataset = random.choices(self.datasets, self.p_datasets)[0]
         is_video_dataset = dataset.is_video_sequence()
@@ -333,7 +331,6 @@ class DepthSampler(torch.utils.data.Dataset):
                            'test_depths': test_depth,
                            'test_anno': test_anno['bbox'],
                            'dataset': dataset.get_name()})
-
         return self.processing(data)
 
 

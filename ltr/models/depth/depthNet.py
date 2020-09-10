@@ -84,7 +84,7 @@ class depthNet(nn.Module):
         if name in output_layers:
             outputs[name] = x
         return len(output_layers) == len(outputs)
-    
+
     def forward(self, x, output_layers=None):
         """ Forward pass with input x. The output_layers specify the feature blocks which must be returned """
         outputs = OrderedDict()

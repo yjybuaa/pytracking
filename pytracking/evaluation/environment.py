@@ -10,8 +10,8 @@ class EnvSettings:
         self.segmentation_path = '{}/segmentation_results/'.format(pytracking_path)
         self.network_path = '{}/networks/'.format(pytracking_path)
         self.result_plot_path = '{}/result_plots/'.format(pytracking_path)
-        self.cdtb_path = '/home/jinyu/vot-toolkit-python/vot/workspace-clgd/sequences/'
-        self.checkpoints_path = '/home/yan/Desktop/checkpoints/ltr/depth/depth/DepthATOMnet_ep0050.pth.tar'
+        self.cdtb_path = '/home/yan/Data2/CDTB/sequences/'
+        self.checkpoints_path = '/home/yan/Desktop/pytracking-checkpoints/ltr/depth/depth/atom_default.pth'
         self.otb_path = ''
         self.nfs_path = ''
         self.uav_path = ''
@@ -66,3 +66,6 @@ def env_settings():
         create_default_local_file()
         raise RuntimeError('YOU HAVE NOT SETUP YOUR local.py!!!\n Go to "{}" and set all the paths you need. '
                            'Then try to run again.'.format(env_file))
+
+if __name__ == '__main__':
+    env_settings()

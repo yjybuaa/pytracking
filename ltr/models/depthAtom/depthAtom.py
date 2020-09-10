@@ -5,7 +5,7 @@ from ltr import model_constructor
 import ltr.models.depth as depth
 import torch
 from collections import OrderedDict
-
+import numpy as np
 
 class DepthATOMnet(nn.Module):
     """ ATOM network module"""
@@ -34,17 +34,27 @@ class DepthATOMnet(nn.Module):
         Note: If the training is done in sequence mode, that is, test_imgs.dim() == 5, then the batch dimension
         corresponds to the first dimensions. test_imgs is thus of the form [sequence, batch, feature, row, col]
         """
-        num_sequences = train_imgs.shape[-4]
-        num_train_images = train_imgs.shape[0] if train_imgs.dim() == 5 else 1
-        num_test_images = test_imgs.shape[0] if test_imgs.dim() == 5 else 1
+
+        if train_imgs.dim() == 5:
+            num_sequences = train_imgs.shape[0]
+            num_train_images = train_imgs.shape[1]
+            num_test_images = test_imgs.shape[1]
+        else:
+            num_sequences = 1
+            num_train_images = train_imgs.shape[0]
+            num_test_images = test_imgs.shape[0]
+        # num_sequences = train_imgs.shape[-4]
+        # num_train_images = train_imgs.shape[0] if train_imgs.dim() == 5 else 1
+        # num_test_images = test_imgs.shape[0] if test_imgs.dim() == 5 else 1
 
         # Extract backbone features
-        train_feat = self.extract_backbone_features(train_imgs.reshape(-1, *train_imgs.shape[-3:]))
+        train_feat = self.extract_backbone_features(train_imgs.reshape(-1, *train_imgs.shape[-3:])) # [sequence*batch, feature, row, col]
         test_feat = self.extract_backbone_features(test_imgs.reshape(-1, *test_imgs.shape[-3:]))
-
         # Extract depth features
-        train_depths_resize = train_depths.reshape(-1, *train_depths.shape[-2:]).unsqueeze(1)
-        test_depths_resize = test_depths.reshape(-1, *test_depths.shape[-2:]).unsqueeze(1)
+        # train_depths_resize = train_depths.reshape(-1, *train_depths.shape[-2:]).unsqueeze(1)
+        # test_depths_resize = test_depths.reshape(-1, *test_depths.shape[-2:]).unsqueeze(1)
+        train_depths_resize = train_depths.reshape(-1, *train_depths.shape[-3:])
+        test_depths_resize = test_depths.reshape(-1, *test_depths.shape[-3:])
 
         train_depth_feat = self.extract_depth_features(train_depths_resize)
         test_depth_feat = self.extract_depth_features(test_depths_resize)
@@ -59,7 +69,6 @@ class DepthATOMnet(nn.Module):
         train_feat_iou = [feat for feat in train_cat.values()]
         test_feat_iou = [feat for feat in test_cat.values()]
 
-        # Obtain iou prediction
         iou_pred = self.bb_regressor(train_feat_iou, test_feat_iou,
                                      train_bb.reshape(num_train_images, num_sequences, 4),
                                      test_proposals.reshape(num_train_images, num_sequences, -1, 4))
@@ -101,7 +110,7 @@ class DepthATOMnet(nn.Module):
 def depth_atom_resnet50(iou_input_dim=(256,256), iou_inter_dim=(256,256), backbone_pretrained=True):
     # backbone
     backbone_net = backbones.resnet50(pretrained=backbone_pretrained)
-    
+
     # depthNet
     depth_net = depth.depthResnet50()
 

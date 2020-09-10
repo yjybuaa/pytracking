@@ -2,7 +2,7 @@ import torch
 import torchvision.transforms as transforms
 from pytracking import TensorDict
 import ltr.data.processing_utils as prutils
-
+import numpy as np
 
 def stack_tensors(x):
     if isinstance(x, (list, tuple)) and isinstance(x[0], torch.Tensor):
@@ -239,10 +239,12 @@ class DepthProcessing(BaseProcessing):
             TensorDict - output data block with following fields:
                 'train_images', 'test_images', 'train_anno', 'test_anno', 'test_proposals', 'proposal_iou'
         """
+
         # Apply joint transforms
         if self.transform['joint'] is not None:
             data['train_images'], data['train_anno'] = self.transform['joint'](image=data['train_images'], bbox=data['train_anno'])
             data['test_images'], data['test_anno'] = self.transform['joint'](image=data['test_images'], bbox=data['test_anno'], new_roll=False)
+
 
         for s in ['train', 'test']:
             assert self.mode == 'sequence' or len(data[s + '_images']) == 1, \
@@ -258,11 +260,10 @@ class DepthProcessing(BaseProcessing):
                                                            self.search_area_factor, self.output_sz)
             crops_depth, boxes_depth = prutils.jittered_center_crop(data[s + '_depths'], jittered_anno, data[s + '_anno'],
                                                            self.search_area_factor, self.output_sz)
-
-            data[s + '_depths'] = crops_depth
-
+            # data[s + '_depths'] = crops_depth
             # Apply transforms
             data[s + '_images'], data[s + '_anno'] = self.transform[s](image=crops, bbox=boxes, joint=False)
+            data[s + '_depths'], _ = self.transform[s](image=crops_depth, bbox=boxes_depth, joint=False)
 
         # Generate proposals
         frame2_proposals, gt_iou = zip(*[self._generate_proposals(a) for a in data['test_anno']])

@@ -185,7 +185,7 @@ class CDTB(BaseVideoDataset):
 
         frame_list = [self._get_frame(seq_path, f_id) for f_id in frame_ids]
         depth_list = [self._get_depth(seq_path, f_id) for f_id in frame_ids]
-
+        
         if anno is None:
             anno = self.get_sequence_info(seq_id)
 
@@ -193,4 +193,5 @@ class CDTB(BaseVideoDataset):
         for key, value in anno.items():
             anno_frames[key] = [value[f_id, ...].clone() for f_id in frame_ids]
 
+        # return np.array(frame_list), np.array(depth_list), anno_frames
         return frame_list, depth_list, anno_frames
