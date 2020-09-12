@@ -123,6 +123,7 @@ class CDTB(BaseVideoDataset):
 
     def _read_target_visible(self, seq_path):
         # Read full occlusion and out_of_view
+        ''' Song : Seems not suitable for CDTB '''
         occlusion_file = os.path.join(seq_path, "absence.label")
         cover_file = os.path.join(seq_path, "cover.label")
 
@@ -185,7 +186,7 @@ class CDTB(BaseVideoDataset):
 
         frame_list = [self._get_frame(seq_path, f_id) for f_id in frame_ids]
         depth_list = [self._get_depth(seq_path, f_id) for f_id in frame_ids]
-        
+
         if anno is None:
             anno = self.get_sequence_info(seq_id)
 

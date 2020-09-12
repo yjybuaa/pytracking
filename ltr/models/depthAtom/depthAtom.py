@@ -35,17 +35,17 @@ class DepthATOMnet(nn.Module):
         corresponds to the first dimensions. test_imgs is thus of the form [sequence, batch, feature, row, col]
         """
 
-        if train_imgs.dim() == 5:
-            num_sequences = train_imgs.shape[0]
-            num_train_images = train_imgs.shape[1]
-            num_test_images = test_imgs.shape[1]
-        else:
-            num_sequences = 1
-            num_train_images = train_imgs.shape[0]
-            num_test_images = test_imgs.shape[0]
-        # num_sequences = train_imgs.shape[-4]
-        # num_train_images = train_imgs.shape[0] if train_imgs.dim() == 5 else 1
-        # num_test_images = test_imgs.shape[0] if test_imgs.dim() == 5 else 1
+        # if train_imgs.dim() == 5:
+        #     num_sequences = train_imgs.shape[0]
+        #     num_train_images = train_imgs.shape[1]
+        #     num_test_images = test_imgs.shape[1]
+        # else:
+        #     num_sequences = 1
+        #     num_train_images = train_imgs.shape[0]
+        #     num_test_images = test_imgs.shape[0]
+        num_sequences = train_imgs.shape[-4]
+        num_train_images = train_imgs.shape[0] if train_imgs.dim() == 5 else 1
+        num_test_images = test_imgs.shape[0] if test_imgs.dim() == 5 else 1
 
         # Extract backbone features
         train_feat = self.extract_backbone_features(train_imgs.reshape(-1, *train_imgs.shape[-3:])) # [sequence*batch, feature, row, col]
