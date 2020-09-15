@@ -121,20 +121,36 @@ class CDTB(BaseVideoDataset):
         gt = pandas.read_csv(bb_anno_file, header=None, dtype=np.float32).values
         return torch.tensor(gt)
 
+    # def _read_target_visible(self, seq_path):
+    #     # Read full occlusion and out_of_view
+    #     ''' Song : Seems not suitable for CDTB '''
+    #     occlusion_file = os.path.join(seq_path, "absence.label")
+    #     cover_file = os.path.join(seq_path, "cover.label")
+    #
+    #     with open(occlusion_file, 'r', newline='') as f:
+    #         occlusion = torch.ByteTensor([int(v[0]) for v in csv.reader(f)])
+    #     with open(cover_file, 'r', newline='') as f:
+    #         cover = torch.ByteTensor([int(v[0]) for v in csv.reader(f)])
+    #
+    #     target_visible = ~occlusion & (cover>0).byte()
+    #
+    #     visible_ratio = cover.float() / 8
+    #     return target_visible, visible_ratio
     def _read_target_visible(self, seq_path):
-        # Read full occlusion and out_of_view
-        ''' Song : Seems not suitable for CDTB '''
-        occlusion_file = os.path.join(seq_path, "absence.label")
-        cover_file = os.path.join(seq_path, "cover.label")
+        ''' Song :
+            - replace absence.label and cover.label
+                with full-occlusion.tag and out-of-frame.tag in CDTB
+        '''
+        occlusion_file = os.path.join(seq_path, "full-occlusion.tag")
+        outOfFrame_file = os.path.join(seq_path, "out-of-frame.tag")
 
         with open(occlusion_file, 'r', newline='') as f:
-            occlusion = torch.ByteTensor([int(v[0]) for v in csv.reader(f)])
-        with open(cover_file, 'r', newline='') as f:
-            cover = torch.ByteTensor([int(v[0]) for v in csv.reader(f)])
+            occlusion = np.array([bool(int(v[0])) for v in csv.reader(f)], dtype=bool)
+        with open(outOfFrame_file, 'r', newline='') as f:
+            outOfFrame = np.array([bool(int(v[0])) for v in csv.reader(f)], dtype=bool)
+        target_visible = torch.BoolTensor(~occlusion & ~outOfFrame)
 
-        target_visible = ~occlusion & (cover>0).byte()
-
-        visible_ratio = cover.float() / 8
+        visible_ratio = torch.BoolTensor(outOfFrame).float() / 8
         return target_visible, visible_ratio
 
     def _get_sequence_path(self, seq_id):

@@ -263,8 +263,22 @@ class DepthProcessing(BaseProcessing):
             # data[s + '_depths'] = crops_depth
             # Apply transforms
             data[s + '_images'], data[s + '_anno'] = self.transform[s](image=crops, bbox=boxes, joint=False)
-            data[s + '_depths'], _ = self.transform[s](image=crops_depth, bbox=boxes_depth, joint=False)
 
+            # Depth crops no need to bright nromalizetion
+            # data[s + '_depths'], _ = self.transform[s](image=crops_depth, bbox=boxes_depth, joint=False)
+            # Song : add depth, just need ToTensor,
+            if isinstance(crops_depth, (list, tuple)):
+                data[s + '_depths'] = [torch.from_numpy(np.asarray(x).transpose((2, 0, 1))) for x in  crops_depth]
+            else:
+                crops_depth = np.asarray(crops_depth)
+                if len(crops_depth.shape) == 3:
+                    data[s + '_depths'] = [torch.from_numpy(np.asarray(crops_depth).transpose((2, 0, 1)))]
+                elif len(crops_depth.shape) == 4:
+                    data[s + '_depths'] = [torch.from_numpy(np.asarray(crops_depth).transpose((0, 3, 1, 2)))]
+                else:
+                    print('crops_depth dimensions error, num_dim=', np.ndim(crops_depth))
+                    data[s + '_depths'] = torch.from_numpy(np.asarray(crops_depth))
+                    
         # Generate proposals
         frame2_proposals, gt_iou = zip(*[self._generate_proposals(a) for a in data['test_anno']])
 
