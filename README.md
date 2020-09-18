@@ -1,5 +1,5 @@
-# PyTracking
-A general python framework for visual object tracking and video object segmentation, based on **PyTorch**.
+# PyTracking for RGB-D data
+A general python framework for RGB-D visual object tracking and video object segmentation, based on **PyTorch**.
 
 ### LWL released!
 * Code for our ECCV 2020 paper [Learning What to Learn for Video Object Segmentation](https://arxiv.org/abs/2003.11540) is now available.  
